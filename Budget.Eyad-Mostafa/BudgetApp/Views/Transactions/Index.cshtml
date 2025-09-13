@@ -1,0 +1,254 @@
+﻿@model TransactionListViewModel
+
+<div class="container mt-4">
+    <h2 class="mb-3">Transactions</h2>
+
+    <a href="javascript:void(0)"
+       class="btn btn-primary mb-3 js-open-create-edit"
+       data-url="@Url.Action("Create", "Transactions")">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus-circle" viewBox="0 0 16 16">
+            <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16" />
+            <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4" />
+        </svg> Add Transaction
+    </a>
+
+    <form asp-action="Index" method="get">
+        <input type="text" name="searchString" value="@Model.SearchString" placeholder="Search..." />
+        <button type="submit">Search</button>
+    </form>
+
+    <table class="table table-striped table-bordered">
+        <thead class="table-dark">
+            <tr>
+                <th>Date</th>
+                <th>Category</th>
+                <th>Amount</th>
+                <th>Type</th>
+                <th>Description</th>
+                <th style="width:150px;">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var t in Model.Transactions)
+            {
+                <tr>
+                    <td>@t.Date.ToString("yyyy-MM-dd")</td>
+                    <td>@t.Category.Name</td>
+                    <td>@t.Amount.ToString("C")</td>
+                    <td>@t.Type</td>
+                    <td>@t.Description</td>
+                    <td width="200">
+                        <a href="javascript:void(0)"
+                           class="btn btn-sm btn-warning js-open-create-edit"
+                           data-url="@Url.Action("Edit", "Transactions", new { id = t.TransactionId })">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">
+                                <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z" />
+                                <path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5z" />
+                            </svg> Edit
+                        </a>
+
+                        <a href="javascript:void(0)"
+                           class="btn btn-sm btn-danger js-open-delete"
+                           data-url="@Url.Action("Delete", "Transactions", new { id = t.TransactionId })">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">
+                                <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z" />
+                                <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z" />
+                            </svg> Delete
+                        </a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <!-- Pagination -->
+    <nav>
+        <ul class="pagination">
+            <!-- Previous button -->
+            <li class="page-item @(Model.CurrentPage == 1 ? "disabled" : "")">
+                <a class="page-link"
+                   asp-action="Index"
+                   asp-route-page="@(Model.CurrentPage - 1)"
+                   asp-route-searchString="@Model.SearchString">
+                    Previous
+                </a>
+            </li>
+
+            <!-- Page numbers -->
+            @for (int i = 1; i <= Model.TotalPages; i++)
+            {
+                <li class="page-item @(i == Model.CurrentPage ? "active" : "")">
+                    <a class="page-link"
+                       asp-action="Index"
+                       asp-route-page="@i"
+                       asp-route-searchString="@Model.SearchString">
+                        @i
+                    </a>
+                </li>
+            }
+
+            <!-- Next button -->
+            <li class="page-item @(Model.CurrentPage == Model.TotalPages ? "disabled" : "")">
+                <a class="page-link"
+                   asp-action="Index"
+                   asp-route-page="@(Model.CurrentPage + 1)"
+                   asp-route-searchString="@Model.SearchString">
+                    Next
+                </a>
+            </li>
+        </ul>
+    </nav>
+
+    <div id="modalPlaceholder"></div>
+
+    <script>
+        (function () {
+            if (!window.bootstrap) console.warn("Bootstrap JS not loaded. Include bootstrap.bundle.min.js before this script.");
+
+            let currentModal = null;
+
+            async function fetchHtml(url) {
+                const res = await fetch(url, { credentials: 'same-origin' });
+                if (!res.ok) {
+                    const txt = await res.text();
+                    throw new Error("Failed to load partial: " + res.status + "\n" + txt);
+                }
+                return await res.text();
+            }
+
+            function injectPartial(html) {
+                document.getElementById("modalPlaceholder").innerHTML = html;
+            }
+
+            async function openCreateEdit(url) {
+                try {
+                    const html = await fetchHtml(url);
+                    injectPartial(html);
+                    const modalEl = document.getElementById("createEditModal");
+                    if (!modalEl) throw new Error("createEditModal not found in partial.");
+                    currentModal = new bootstrap.Modal(modalEl);
+                    currentModal.show();
+                    bindCreateEditForm();
+                } catch (err) {
+                    console.error(err);
+                    alert("Could not open form. See console.");
+                }
+            }
+
+            async function openDelete(url) {
+                try {
+                    const html = await fetchHtml(url);
+                    injectPartial(html);
+                    const modalEl = document.getElementById("deleteModal");
+                    if (!modalEl) throw new Error("deleteModal not found in partial.");
+                    currentModal = new bootstrap.Modal(modalEl);
+                    currentModal.show();
+                    bindDeleteForm();
+                } catch (err) {
+                    console.error(err);
+                    alert("Could not open delete dialog. See console.");
+                }
+            }
+
+            function bindCreateEditForm() {
+                const form = document.getElementById("createEditForm");
+                if (!form) return;
+                const newForm = form.cloneNode(true);
+                form.parentNode.replaceChild(newForm, form);
+
+                newForm.addEventListener("submit", async function (e) {
+                    e.preventDefault();
+                    try {
+                        const action = newForm.action;
+                        const formData = new FormData(newForm);
+                        const res = await fetch(action, { method: "POST", body: formData, credentials: 'same-origin' });
+
+                        const ct = res.headers.get("content-type") || "";
+                        if (ct.includes("application/json")) {
+                            const data = await res.json();
+                            if (data && data.success) {
+                                if (currentModal) currentModal.hide();
+                                location.reload();
+                                return;
+                            } else {
+                                console.error("Save returned JSON but success != true", data);
+                                alert("Save failed. See console.");
+                            }
+                        } else {
+                            // validation errors -> server returned HTML partial
+                            const html = await res.text();
+                            injectPartial(html);
+                            const modalEl = document.getElementById("createEditModal");
+                            currentModal = new bootstrap.Modal(modalEl);
+                            currentModal.show();
+                            bindCreateEditForm();
+                        }
+                    } catch (err) {
+                        console.error("Error saving:", err);
+                        alert("Error saving. See console.");
+                    }
+                });
+            }
+
+            function bindDeleteForm() {
+                const form = document.getElementById("deleteForm");
+                if (!form) return;
+                const newForm = form.cloneNode(true);
+                form.parentNode.replaceChild(newForm, form);
+
+                newForm.addEventListener("submit", async function (e) {
+                    e.preventDefault();
+                    try {
+                        const action = newForm.action;
+                        const formData = new FormData(newForm);
+                        const res = await fetch(action, { method: "POST", body: formData, credentials: 'same-origin' });
+                        if (!res.ok) {
+                            const txt = await res.text();
+                            console.error("Delete failed:", res.status, txt);
+                            alert("Delete failed. See console.");
+                            return;
+                        }
+                        const data = await res.json();
+                        if (data && data.success) {
+                            if (currentModal) currentModal.hide();
+                            location.reload();
+                        } else {
+                            console.error("Delete failed response:", data);
+                            alert("Delete failed. See console.");
+                        }
+                    } catch (err) {
+                        console.error("Error deleting:", err);
+                        alert("Delete failed. See console.");
+                    }
+                });
+            }
+
+            // delegated click listener (works for elements added later)
+            document.addEventListener("click", function (e) {
+                const createBtn = e.target.closest(".js-open-create-edit");
+                if (createBtn) {
+                    e.preventDefault();
+                    const url = createBtn.dataset.url;
+                    if (!url) { console.error("data-url missing on create/edit button"); return; }
+                    openCreateEdit(url);
+                    return;
+                }
+                const deleteBtn = e.target.closest(".js-open-delete");
+                if (deleteBtn) {
+                    e.preventDefault();
+                    const url = deleteBtn.dataset.url;
+                    if (!url) { console.error("data-url missing on delete button"); return; }
+                    openDelete(url);
+                    return;
+                }
+            });
+
+            document.addEventListener("hidden.bs.modal", function (e) {
+                document.querySelectorAll(".modal-backdrop").forEach(el => el.remove());
+                document.body.classList.remove("modal-open");
+            });
+        })();
+    </script>
+
+</div>
+
