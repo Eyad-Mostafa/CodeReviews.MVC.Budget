@@ -12,9 +12,29 @@
         </svg> Add Transaction
     </a>
 
-    <form asp-action="Index" method="get">
-        <input type="text" name="searchString" value="@Model.SearchString" placeholder="Search..." />
-        <button type="submit">Search</button>
+    <form asp-action="Index" method="get" class="row g-2 mb-3">
+        <div class="col-md-3">
+            <input type="text" name="searchString" value="@Model.SearchString" class="form-control" placeholder="Search..." />
+        </div>
+
+        <div class="col-md-2">
+            <input type="date" name="startDate" value="@(Model.StartDate?.ToString("yyyy-MM-dd"))" class="form-control" />
+        </div>
+
+        <div class="col-md-2">
+            <input type="date" name="endDate" value="@(Model.EndDate?.ToString("yyyy-MM-dd"))" class="form-control" />
+        </div>
+
+        <div class="col-md-3">
+            <select name="categoryId" class="form-select" asp-items="ViewBag.Categories">
+                <option value="">-- All Categories --</option>
+            </select>
+        </div>
+
+
+        <div class="col-md-2">
+            <button type="submit" class="btn btn-primary w-100">Filter</button>
+        </div>
     </form>
 
     <table class="table table-striped table-bordered">
@@ -69,7 +89,10 @@
                 <a class="page-link"
                    asp-action="Index"
                    asp-route-page="@(Model.CurrentPage - 1)"
-                   asp-route-searchString="@Model.SearchString">
+                   asp-route-searchString="@Model.SearchString"
+                   asp-route-startDate="@Model.StartDate?.ToString("yyyy-MM-dd")"
+                   asp-route-endDate="@Model.EndDate?.ToString("yyyy-MM-dd")"
+                   asp-route-categoryId="@Model.CategoryId">
                     Previous
                 </a>
             </li>
@@ -81,7 +104,10 @@
                     <a class="page-link"
                        asp-action="Index"
                        asp-route-page="@i"
-                       asp-route-searchString="@Model.SearchString">
+                       asp-route-searchString="@Model.SearchString"
+                       asp-route-startDate="@Model.StartDate?.ToString("yyyy-MM-dd")"
+                       asp-route-endDate="@Model.EndDate?.ToString("yyyy-MM-dd")"
+                       asp-route-categoryId="@Model.CategoryId">
                         @i
                     </a>
                 </li>
@@ -92,9 +118,13 @@
                 <a class="page-link"
                    asp-action="Index"
                    asp-route-page="@(Model.CurrentPage + 1)"
-                   asp-route-searchString="@Model.SearchString">
+                   asp-route-searchString="@Model.SearchString"
+                   asp-route-startDate="@Model.StartDate?.ToString("yyyy-MM-dd")"
+                   asp-route-endDate="@Model.EndDate?.ToString("yyyy-MM-dd")"
+                   asp-route-categoryId="@Model.CategoryId">
                     Next
                 </a>
+
             </li>
         </ul>
     </nav>

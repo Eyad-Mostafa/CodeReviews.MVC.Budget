@@ -1,7 +1,9 @@
 ﻿using BudgetApp.Data;
 using BudgetApp.Models;
+using BudgetApp.Models.Enums;
 using BudgetApp.ViewModels;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 
 namespace BudgetApp.Controllers;
@@ -10,33 +12,49 @@ public class TransactionsController(AppDbContext context) : Controller
 {
     private readonly AppDbContext _context = context;
 
-    public async Task<IActionResult> Index(int page = 1, string searchString = "")
+    public IActionResult Index(string? searchString, DateTime? startDate, DateTime? endDate, int? categoryId, int page = 1)
     {
-        int pageSize = 20;
+        const int PageSize = 20;
+        var query = _context.Transactions.Include(t => t.Category).AsQueryable();
 
-        IQueryable<Transaction> query = _context.Transactions
-            .AsNoTracking()
-            .Include(t => t.Category)
-            .OrderByDescending(t => t.Date);
-
+        // Search
         if (!string.IsNullOrEmpty(searchString))
         {
-            query = query.Where(t => t.Description.ToUpper().Contains(searchString.ToUpper()));
+            query = query.Where(t => t.Description.Contains(searchString) || t.Category.Name.Contains(searchString));
         }
 
-        var totalCount = await query.CountAsync();
+        // Date filter
+        if (startDate.HasValue)
+            query = query.Where(t => t.Date >= startDate.Value);
 
-        var transactions = await query
-            .Skip((page - 1) * pageSize)
-            .Take(pageSize)
-            .ToListAsync();
+        if (endDate.HasValue)
+            query = query.Where(t => t.Date <= endDate.Value);
+
+        // Category filter
+        if (categoryId.HasValue)
+        {
+            query = query.Where(t => t.CategoryId == categoryId.Value);
+        }
+        var categories = _context.Categories.ToList();
+        ViewBag.Categories = new SelectList(categories, "CategoryId", "Name", categoryId);
+
+        // Pagination
+        var totalItems = query.Count();
+        var transactions = query
+            .OrderByDescending(t => t.Date)
+            .Skip((page - 1) * PageSize)
+            .Take(PageSize)
+            .ToList();
 
         var vm = new TransactionListViewModel
         {
             Transactions = transactions,
             CurrentPage = page,
-            TotalPages = (int)Math.Ceiling(totalCount / (double)pageSize),
-            SearchString = searchString
+            TotalPages = (int)Math.Ceiling(totalItems / (double)PageSize),
+            SearchString = searchString,
+            StartDate = startDate,
+            EndDate = endDate,
+            CategoryId = categoryId
         };
 
         return View(vm);
