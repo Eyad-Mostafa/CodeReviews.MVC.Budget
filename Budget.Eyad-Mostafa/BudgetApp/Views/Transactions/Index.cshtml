@@ -100,17 +100,24 @@
             <!-- Page numbers -->
             @for (int i = 1; i <= Model.TotalPages; i++)
             {
-                <li class="page-item @(i == Model.CurrentPage ? "active" : "")">
-                    <a class="page-link"
-                       asp-action="Index"
-                       asp-route-page="@i"
-                       asp-route-searchString="@Model.SearchString"
-                       asp-route-startDate="@Model.StartDate?.ToString("yyyy-MM-dd")"
-                       asp-route-endDate="@Model.EndDate?.ToString("yyyy-MM-dd")"
-                       asp-route-categoryId="@Model.CategoryId">
-                        @i
-                    </a>
-                </li>
+                if (i == 1 || i >= Model.TotalPages - 1 || (i >= Model.CurrentPage - 4 && i <= Model.CurrentPage + 4))
+                {
+                    <li class="page-item @(i == Model.CurrentPage ? "active" : "")">
+                        <a class="page-link"
+                           asp-action="Index"
+                           asp-route-page="@i"
+                           asp-route-searchString="@Model.SearchString"
+                           asp-route-startDate="@Model.StartDate?.ToString("yyyy-MM-dd")"
+                           asp-route-endDate="@Model.EndDate?.ToString("yyyy-MM-dd")"
+                           asp-route-categoryId="@Model.CategoryId">
+                            @i
+                        </a>
+                    </li>
+                }
+                else if (i == 4 || i == Model.TotalPages - 2)
+                {
+                    <li class="page-item disabled"><span class="page-link">...</span></li>
+                }
             }
 
             <!-- Next button -->
